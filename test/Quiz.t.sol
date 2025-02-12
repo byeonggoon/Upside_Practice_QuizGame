@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "../src/Quiz.sol";
+import "forge-std/console.sol";
 
 contract QuizTest is Test {
     Quiz public quiz;
@@ -11,10 +12,11 @@ contract QuizTest is Test {
     Quiz.Quiz_item q1;
 
     function setUp() public {
-       vm.deal(address(this), 100 ether);
-       quiz = new Quiz();
-       address(quiz).call{value: 5 ether}("");
-       q1 = quiz.getQuiz(1);
+        vm.deal(address(this), 100 ether);
+        quiz = new Quiz();
+        address(quiz).call{value: 5 ether}("");
+        q1 = quiz.getQuiz(1);
+        console.log("setUp good");
     }
 
     function testAddQuizACL() public {
@@ -50,23 +52,23 @@ contract QuizTest is Test {
     }
 
     function testBetToPlayMin() public {
-        quiz.betToPlay{value: q1.min_bet}(1);
+        quiz.betToPlay{value: q1.min_bet}(1); // value : 1eth
     }
 
     function testBetToPlay() public {
-        quiz.betToPlay{value: (q1.min_bet + q1.max_bet) / 2}(1);
+        quiz.betToPlay{value: (q1.min_bet + q1.max_bet) / 2}(1); // value: 1.5 ether
     }
 
     function testBetToPlayMax() public {
-        quiz.betToPlay{value: q1.max_bet}(1);
+        quiz.betToPlay{value: q1.max_bet}(1); // value: 2 ether
     }
 
     function testFailBetToPlayMin() public {
-        quiz.betToPlay{value: q1.min_bet - 1}(1);
+        quiz.betToPlay{value: q1.min_bet - 1}(1); // value: 0.999999999999999999
     }
 
     function testFailBetToPlayMax() public {
-        quiz.betToPlay{value: q1.max_bet + 1}(1);
+        quiz.betToPlay{value: q1.max_bet + 1}(1); // value: 2.000000000000000001
     }
 
     function testMultiBet() public {
@@ -98,6 +100,5 @@ contract QuizTest is Test {
         uint256 balance = address(this).balance;
         assertEq(balance - prev_balance, q1.min_bet * 2);
     }
-
     receive() external payable {}
 }
