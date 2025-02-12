@@ -62,14 +62,10 @@ contract Quiz {
             quizList[quizId - 1].min_bet <= msg.value &&
             quizList[quizId - 1].max_bet >= msg.value
         ) {
-            quizList[quizId - 1].min_bet + msg.value;
-            quizList[quizId - 1].max_bet + msg.value;
+            quizList[quizId - 1].max_bet += msg.value;
             vault_balance += msg.value;
             bets.push();
-            if (
-                keccak256(abi.encodePacked(quizList[quizId - 1].answer)) ==
-                keccak256(abi.encodePacked(""))
-            ) {
+            if (bytes(quizList[quizId - 1].answer).length == 0) {
                 quizList[quizId - 1].answer = "OK";
             }
 

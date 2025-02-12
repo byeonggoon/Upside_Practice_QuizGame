@@ -16,7 +16,6 @@ contract QuizTest is Test {
         quiz = new Quiz();
         address(quiz).call{value: 5 ether}("");
         q1 = quiz.getQuiz(1);
-        console.log("setUp good");
     }
 
     function testAddQuizACL() public {
