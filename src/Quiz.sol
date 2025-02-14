@@ -9,11 +9,11 @@ contract Quiz {
         uint min_bet;
         uint max_bet;
     }
-
-    Quiz_item[] public quizList;
     mapping(address => uint256)[] public bets;
     mapping(address => uint256) public claimable;
-    address public owner;
+    mapping(uint256 => address) public quizOwner;
+    Quiz_item[] public quizList;
+
     uint public vault_balance;
 
     constructor() {
@@ -26,17 +26,14 @@ contract Quiz {
         addQuiz(q);
     }
 
-    function setOwner(address _newOwner) external {
-        require(msg.sender == owner, "NO PERMMION");
-        owner = _newOwner;
-    }
-
     function addQuiz(Quiz_item memory q) public {
         require(msg.sender.code.length > 0);
         quizList.push(q);
+        quizOwner[quizList.length - 1] = msg.sender;
     }
 
     function fixAnser(uint256 _fixNum, string memory _newAnswer) external {
+        require(msg.sender == quizOwner[_fixNum]);
         Quiz_item storage q = quizList[_fixNum];
         q.answer = _newAnswer;
     }
@@ -84,13 +81,16 @@ contract Quiz {
     }
 
     function solveQuiz(uint quizId, string memory ans) public returns (bool) {
+        bool check = keccak256(abi.encodePacked(quizList[quizId - 1].answer)) ==
+            keccak256(abi.encodePacked(ans));
+
         vault_balance += bets[quizId - 1][msg.sender];
         bets[quizId - 1][msg.sender] = 0;
-        claimable[msg.sender] = vault_balance;
 
-        return
-            keccak256(abi.encodePacked(quizList[quizId - 1].answer)) ==
-            keccak256(abi.encodePacked(ans));
+        if (check) {
+            claimable[msg.sender] = vault_balance;
+        }
+        return check;
     }
 
     function claim() public {
