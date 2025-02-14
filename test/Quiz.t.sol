@@ -3,7 +3,6 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "../src/Quiz.sol";
-import "forge-std/console.sol";
 
 contract QuizTest is Test {
     Quiz public quiz;
